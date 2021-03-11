@@ -1,0 +1,2 @@
+# CoursemosAutoPlayer
+coursemos auto player
