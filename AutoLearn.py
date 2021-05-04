@@ -211,15 +211,15 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
         'div.course_box.course_box_current > ul > li> div.content > ul > li.activity.vod.modtype_vod > div > div > div:nth-child(2) > div')
 
     done = True
-    print()
-    print(class_name, 'for this week :')
+    system('cls')
+    print(class_name, 'for this week :\n')
 
     # print title, duration of vid
     for i in links:
         title = i.find('span').contents[0]
         duration = i.find_all('span')[-1].text.split()[-1]
         print('강의명 :', title, ', 시간 :', duration)
-
+    print()
     # open vid link and play each
     for i in links:
 
