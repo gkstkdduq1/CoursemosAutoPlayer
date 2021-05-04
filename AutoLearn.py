@@ -2,6 +2,8 @@ import itertools
 import sys
 import threading
 import time
+from os import system
+from random import uniform
 
 import six
 from selenium import webdriver
@@ -32,6 +34,53 @@ style = style_from_dict({
     Token.Pointer: '#673ab7 bold',
     Token.Question: '',
 })
+
+def wake_up_neo(lines, color):
+
+    if color == 'red':
+        print('\033[1;31m')
+
+    if color == 'green':
+        print('\033[1;32m')
+
+    if color == 'yellow':
+        print('\033[1;33m')
+
+    if color == 'blue':
+        print('\033[1;34m')
+
+    if color == 'magenta':
+        print('\033[1;35m')
+
+    if color == 'cyan':
+        print('\033[1;36m')
+
+    if color == 'white':
+        print('\033[1;37m')
+
+    if color == 'black':
+        print('\033[1;30m')
+
+    try:
+        system('cls')
+        for line in lines:
+            print(line, end='')
+
+            sys.stdout.flush()
+            sleep(uniform(0, 0.3))
+
+            if line == '\n':
+                system('cls')
+
+    except (KeyboardInterrupt, SystemExit):
+        pass
+
+    finally:
+        system('cls')
+
+        print('\033[0;0m')
+
+
 
 
 def log(string, color, font="slant", figlet=False):
@@ -83,9 +132,12 @@ def waiting():
 
 
 
-log("Coursemos", color='red', figlet=True)
-log('Welcome to Coursemos', 'green')
 
+
+lines = 'Welcome to Coursemos'
+wake_up_neo(lines, 'green')
+
+log("Coursemos", color='red', figlet=True)
 accountInfo = askAccountInformation()
 USERNAME = accountInfo.get("username")
 PASSWORD = accountInfo.get("password")
@@ -98,8 +150,6 @@ PASSWORD = accountInfo.get("password")
 #
 # f.close()
 
-t = threading.Thread(target=waiting)
-t.start()
 
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
@@ -120,9 +170,17 @@ br.find_element_by_name('loginbutton').click()
 html = br.page_source
 soup = BeautifulSoup(html, 'html.parser')
 
+username = soup.select('li.user_department.hidden-xs')[0].text
 
-done = True
+lines = f"""Wake up, {username}...
+The Matrix has you...
+Follow the white rabbit.
+Knock, knock, {username}."""
+
+t = threading.Thread(target=wake_up_neo(lines, 'green'))
+t.start()
 sleep(0.5)
+
 # sentence = 'Welcome to Inha University'
 # #log('\nWelcome to Inha University', 'green')
 # i = 0
@@ -152,6 +210,7 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
     links = soup.select(
         'div.course_box.course_box_current > ul > li> div.content > ul > li.activity.vod.modtype_vod > div > div > div:nth-child(2) > div')
 
+    done = True
     print()
     print(class_name, 'for this week :')
 
