@@ -22,8 +22,10 @@ from random import uniform
 from os import system
 from getopt import getopt, GetoptError
 import colorama
-
+import inquirer
+from PyInquirer import Token, prompt, style_from_dict
 colorama.init()
+
 
 def version():
 
@@ -141,6 +143,29 @@ def main():
             pass
 
         usage()
+def get_pill(answers):
+    options = pills
+    return options
+
+
+def ask_pill():
+    questions = [
+        {
+            'type': 'list',
+            'name': 'pill',
+            'message': 'Remember, all I’m offering is the truth, nothing more.',
+            'choices' : get_pill()
+        },
+    ]
+
+    answers = prompt(questions, style=style)
 
 if __name__ == '__main__':
-        main()
+    questions = [
+        inquirer.List('pill',
+                      message="Remember, all I’m offering is the truth, nothing more.",
+                      choices=['\033[1;34mBLUE PILL', '\033[1;31mRED PILL'],
+                      ),
+    ]
+    answers = inquirer.prompt(questions)
+    print(answers["pill"])

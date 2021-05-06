@@ -4,6 +4,8 @@ import threading
 import time
 from os import system
 from random import uniform
+
+import inquirer
 import pandas as pd
 import six
 from selenium import webdriver
@@ -34,6 +36,22 @@ style = style_from_dict({
     Token.Pointer: '#673ab7 bold',
     Token.Question: '',
 })
+
+pills=['\033[1;34mBLUE PILL', '\033[1;31mRED PILL']
+
+
+def ask_pill():
+    questions = [
+        {
+            'type': 'list',
+            'name': 'pill',
+            'message': 'Remember, all I’m offering is the truth, nothing more.',
+            'choices': ['\033[1;34mBLUE PILL', '\033[1;31mRED PILL']
+        },
+    ]
+
+    answers = prompt(questions, style=style)
+    return answers
 
 def wake_up_neo(lines, color):
 
@@ -71,6 +89,8 @@ def wake_up_neo(lines, color):
 
             if line == '\n':
                 system('cls')
+
+        return ask_pill()
 
     except (KeyboardInterrupt, SystemExit):
         pass
