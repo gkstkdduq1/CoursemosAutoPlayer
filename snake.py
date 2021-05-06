@@ -169,3 +169,7 @@ if __name__ == '__main__':
     ]
     answers = inquirer.prompt(questions)
     print(answers["pill"])
+    print('\033[0;0m')
+    system('cls')
+
+    print(f"hihihihi")
