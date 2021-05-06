@@ -53,6 +53,20 @@ def ask_pill():
     answers = prompt(questions, style=style)
     return answers
 
+
+def typewriter(lines):
+    print('\033[1;32m')
+    system('cls')
+    for line in lines:
+        print(line, end='')
+
+        sys.stdout.flush()
+        sleep(uniform(0, 0.3))
+
+        if line == '\n':
+            system('cls')
+    system('cls')
+
 def wake_up_neo(lines, color):
 
     if color == 'red':
@@ -155,17 +169,7 @@ def waiting():
 
 
 lines = 'Welcome to Coursemos'
-
-print('\033[1;32m')
-system('cls')
-for line in lines:
-    print(line, end='')
-
-    sys.stdout.flush()
-    sleep(uniform(0, 0.3))
-
-    if line == '\n':
-        system('cls')
+typewriter(lines)
 
 log("Coursemos", color='red', figlet=True)
 accountInfo = askAccountInformation()
