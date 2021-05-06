@@ -19,6 +19,8 @@
 from sys import argv, stdout
 from time import sleep
 from random import uniform
+import random
+import time
 from os import system
 from getopt import getopt, GetoptError
 import colorama
@@ -169,7 +171,29 @@ if __name__ == '__main__':
     ]
     answers = inquirer.prompt(questions)
     print(answers["pill"])
+
+
     print('\033[0;0m')
     system('cls')
 
     print(f"hihihihi")
+
+    symbols=['1','0','']
+    line = []
+    counter = 0
+
+    for i in range (118):
+        x = random.randint(0,2)
+        line.append(symbols[x])
+
+        counter += i
+
+        for i in range(10000):
+            if counter % 5 == 0:
+                r_symbols = [random.randint(0,117) for x in range(10)]
+
+                for i in r_symbols:
+                    line[i] = symbols[random.randint(0,3)]
+        print(*line)
+        counter +=1
+        time.sleep(0.01)
