@@ -169,8 +169,8 @@ if __name__ == '__main__':
                       choices=['\033[1;34mBLUE PILL', '\033[1;31mRED PILL'],
                       ),
     ]
-    answers = inquirer.prompt(questions)
-    print(answers["pill"])
+    #answers = inquirer.prompt(questions)
+    #print(answers["pill"])
 
 
     print('\033[0;0m')
@@ -178,12 +178,12 @@ if __name__ == '__main__':
 
     print(f"hihihihi")
 
-    symbols=['1','0','']
+    symbols=['1','0',' ', ' ']
     line = []
     counter = 0
 
-    for i in range (118):
-        x = random.randint(0,2)
+    for i in range(118):
+        x = random.randint(0,3)
         line.append(symbols[x])
 
         counter += i
@@ -196,4 +196,4 @@ if __name__ == '__main__':
                     line[i] = symbols[random.randint(0,3)]
         print(*line)
         counter +=1
-        time.sleep(0.01)
+        sleep(0.01)

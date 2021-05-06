@@ -127,24 +127,24 @@ def log(string, color, font="slant", figlet=False):
         six.print_(string)
 
 
-# def askAccountInformation():
-#     questions = [
-#         {
-#             'type': 'input',
-#             'name': 'username',
-#             'message': 'ID'
-#             # 'default': '12113952'
-#         },
-#         {
-#             'type': 'password',
-#             'name': 'password',
-#             'message': 'Password'
-#             # 'default': 'Asdasd!@3'
-#         }
-#     ]
-#
-#     answers = prompt(questions, style=style)
-#     return answers
+def askAccountInformation():
+    questions = [
+        {
+            'type': 'input',
+            'name': 'username',
+            'message': 'ID'
+            # 'default': '12113952'
+        },
+        {
+            'type': 'password',
+            'name': 'password',
+            'message': 'Password'
+            # 'default': 'Asdasd!@3'
+        }
+    ]
+
+    answers = prompt(questions, style=style)
+    return answers
 
 
 def get_sec(time_str):
@@ -170,17 +170,17 @@ lines = 'Welcome to Coursemos'
 typewriter(lines)
 
 log("Coursemos", color='red', figlet=True)
-# accountInfo = askAccountInformation()
-# USERNAME = accountInfo.get("username")
-# PASSWORD = accountInfo.get("password")
+accountInfo = askAccountInformation()
+USERNAME = accountInfo.get("username")
+PASSWORD = accountInfo.get("password")
 
-f = open("account.txt", "r")
-lines = f.readlines()
-
-USERNAME = lines[0].replace("\n", '')
-PASSWORD = lines[1].replace("\n", '')
-
-f.close()
+# f = open("account.txt", "r")
+# lines = f.readlines()
+#
+# USERNAME = lines[0].replace("\n", '')
+# PASSWORD = lines[1].replace("\n", '')
+#
+# f.close()
 
 
 chrome_options = Options()
