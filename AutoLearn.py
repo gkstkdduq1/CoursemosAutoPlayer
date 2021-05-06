@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 import warnings
 from pyfiglet import figlet_format
-# from PyInquirer import Token, prompt, style_from_dict
+from PyInquirer import Token, prompt, style_from_dict
 
 warnings.filterwarnings(action='ignore')
 
@@ -25,15 +25,15 @@ import colorama
 colorama.init()
 from termcolor import colored
 
-# style = style_from_dict({
-#     Token.QuestionMark: '#fac731 bold',
-#     Token.Answer: '#4688f1 bold',
-#     Token.Instruction: '',  # default
-#     Token.Separator: '#cc5454',
-#     Token.Selected: '#0abf5b',  # default
-#     Token.Pointer: '#673ab7 bold',
-#     Token.Question: '',
-# })
+style = style_from_dict({
+    Token.QuestionMark: '#fac731 bold',
+    Token.Answer: '#4688f1 bold',
+    Token.Instruction: '',  # default
+    Token.Separator: '#cc5454',
+    Token.Selected: '#0abf5b',  # default
+    Token.Pointer: '#673ab7 bold',
+    Token.Question: '',
+})
 
 def wake_up_neo(lines, color):
 
@@ -93,25 +93,25 @@ def log(string, color, font="slant", figlet=False):
     else:
         six.print_(string)
 
-#
-# def askAccountInformation():
-#     questions = [
-#         {
-#             'type': 'input',
-#             'name': 'username',
-#             'message': 'ID'
-#             # 'default': '12113952'
-#         },
-#         {
-#             'type': 'password',
-#             'name': 'password',
-#             'message': 'Password'
-#             # 'default': 'Asdasd!@3'
-#         }
-#     ]
-#
-#     answers = prompt(questions, style=style)
-#     return answers
+
+def askAccountInformation():
+    questions = [
+        {
+            'type': 'input',
+            'name': 'username',
+            'message': 'ID'
+            # 'default': '12113952'
+        },
+        {
+            'type': 'password',
+            'name': 'password',
+            'message': 'Password'
+            # 'default': 'Asdasd!@3'
+        }
+    ]
+
+    answers = prompt(questions, style=style)
+    return answers
 
 
 def get_sec(time_str):
@@ -138,17 +138,17 @@ lines = 'Welcome to Coursemos'
 wake_up_neo(lines, 'green')
 
 log("Coursemos", color='red', figlet=True)
-# accountInfo = askAccountInformation()
-# USERNAME = accountInfo.get("username")
-# PASSWORD = accountInfo.get("password")
+accountInfo = askAccountInformation()
+USERNAME = accountInfo.get("username")
+PASSWORD = accountInfo.get("password")
 
-f = open("account.txt", "r")
-lines = f.readlines()
-
-USERNAME = lines[0].replace("\n", '')
-PASSWORD = lines[1].replace("\n", '')
-
-f.close()
+# f = open("account.txt", "r")
+# lines = f.readlines()
+#
+# USERNAME = lines[0].replace("\n", '')
+# PASSWORD = lines[1].replace("\n", '')
+#
+# f.close()
 
 
 chrome_options = Options()
@@ -158,7 +158,7 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--mute-audio")
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-br = webdriver.Chrome('./driver/chromedriver', options=chrome_options)  # 드라이버 로드
+br = webdriver.Chrome('./chromedriver', options=chrome_options)  # 드라이버 로드
 # br = webdriver.Chrome('./driver/chromedriver')  # 드라이버 로드
 br.get('https://learn.inha.ac.kr/login.php')  # 해당 url로 이동
 
