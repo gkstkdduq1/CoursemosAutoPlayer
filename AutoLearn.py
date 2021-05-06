@@ -4,7 +4,7 @@ import threading
 import time
 from os import system
 from random import uniform
-
+import pandas as pd
 import six
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 import warnings
 from pyfiglet import figlet_format
-from PyInquirer import Token, prompt, style_from_dict
+# from PyInquirer import Token, prompt, style_from_dict
 
 warnings.filterwarnings(action='ignore')
 
@@ -25,15 +25,15 @@ import colorama
 colorama.init()
 from termcolor import colored
 
-style = style_from_dict({
-    Token.QuestionMark: '#fac731 bold',
-    Token.Answer: '#4688f1 bold',
-    Token.Instruction: '',  # default
-    Token.Separator: '#cc5454',
-    Token.Selected: '#0abf5b',  # default
-    Token.Pointer: '#673ab7 bold',
-    Token.Question: '',
-})
+# style = style_from_dict({
+#     Token.QuestionMark: '#fac731 bold',
+#     Token.Answer: '#4688f1 bold',
+#     Token.Instruction: '',  # default
+#     Token.Separator: '#cc5454',
+#     Token.Selected: '#0abf5b',  # default
+#     Token.Pointer: '#673ab7 bold',
+#     Token.Question: '',
+# })
 
 def wake_up_neo(lines, color):
 
@@ -93,25 +93,25 @@ def log(string, color, font="slant", figlet=False):
     else:
         six.print_(string)
 
-
-def askAccountInformation():
-    questions = [
-        {
-            'type': 'input',
-            'name': 'username',
-            'message': 'ID',
-            'default': '12113952'
-        },
-        {
-            'type': 'password',
-            'name': 'password',
-            'message': 'Password',
-            'default': 'Asdasd!@3'
-        }
-    ]
-
-    answers = prompt(questions, style=style)
-    return answers
+#
+# def askAccountInformation():
+#     questions = [
+#         {
+#             'type': 'input',
+#             'name': 'username',
+#             'message': 'ID'
+#             # 'default': '12113952'
+#         },
+#         {
+#             'type': 'password',
+#             'name': 'password',
+#             'message': 'Password'
+#             # 'default': 'Asdasd!@3'
+#         }
+#     ]
+#
+#     answers = prompt(questions, style=style)
+#     return answers
 
 
 def get_sec(time_str):
@@ -138,17 +138,17 @@ lines = 'Welcome to Coursemos'
 wake_up_neo(lines, 'green')
 
 log("Coursemos", color='red', figlet=True)
-accountInfo = askAccountInformation()
-USERNAME = accountInfo.get("username")
-PASSWORD = accountInfo.get("password")
+# accountInfo = askAccountInformation()
+# USERNAME = accountInfo.get("username")
+# PASSWORD = accountInfo.get("password")
 
-# f = open("account.txt", "r")
-# lines = f.readlines()
-#
-# USERNAME = lines[0].replace("\n", '')
-# PASSWORD = lines[1].replace("\n", '')
-#
-# f.close()
+f = open("account.txt", "r")
+lines = f.readlines()
+
+USERNAME = lines[0].replace("\n", '')
+PASSWORD = lines[1].replace("\n", '')
+
+f.close()
 
 
 chrome_options = Options()
@@ -194,34 +194,50 @@ sleep(0.5)
 for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
 
     link = a['href']
-    br.get(link)
+    class_id = link[link.find('id=') + len('id='):]
     class_name = a.select('div.course-name > div.course-title > h3')[0].contents[0]
-    try:
-        WebDriverWait(br, 3).until(EC.alert_is_present(),
-                                   'Timed out waiting for PA creation ' +
-                                   'confirmation popup to appear.')
-        alert = br.switch_to.alert
-        alert.accept()
-    except TimeoutException:
-        pass
+    br.get(link)
+    # try:
+    #     WebDriverWait(br, 3).until(EC.alert_is_present(),
+    #                                'Timed out waiting for PA creation ' +
+    #                                'confirmation popup to appear.')
+    #     alert = br.switch_to.alert
+    #     alert.accept()
+    # except TimeoutException:
+    #     pass
 
     html = br.page_source
     soup = BeautifulSoup(html, 'html.parser')
     links = soup.select(
         'div.course_box.course_box_current > ul > li> div.content > ul > li.activity.vod.modtype_vod > div > div > div:nth-child(2) > div')
-
+    week_text = soup.select('div.course_box.course_box_current > ul > li> div.content >h3>span>a')[0]['href']
+    week = week_text[week_text.find('section-') + len('section-'):]
+    br.get(f'https://learn.inha.ac.kr/report/ubcompletion/user_progress_a.php?id={class_id}')
+    html = br.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    table = soup.find_all('table')
+    attend_df = pd.read_html(str(table))[1]
+    attend_df = attend_df[attend_df.iloc[:, 0] == int(week)]
+    attend_list = attend_df['출석'].tolist()
     done = True
     system('cls')
     print(class_name, 'for this week :\n')
-
+    links_to_attend = []
     # print title, duration of vid
-    for i in links:
-        title = i.find('span').contents[0]
-        duration = i.find_all('span')[-1].text.split()[-1]
-        print('강의명 :', title, ', 시간 :', duration)
+    for link, attend in zip(links,attend_list):
+        color = 'green' if attend == 'O' else 'red'
+        if attend == 'O':
+            color = 'green'
+        else :
+            color = 'red'
+            links_to_attend.append(link)
+        title = link.find('span').contents[0]
+        duration = link.find_all('span')[-1].text.split()[-1]
+        log(f'강의명 : {title}, 시간 :{duration}, 출석여부 : {attend}', color )
+
     print()
     # open vid link and play each
-    for i in links:
+    for i in links_to_attend:
 
         title = i.find('span').contents[0]
         duration = i.find_all('span')[-1].text.split()[-1]
