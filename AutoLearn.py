@@ -103,7 +103,7 @@ def wake_up_neo(lines, color):
 
             if line == '\n':
                 system('cls')
-
+        system('cls')
         return ask_pill()
 
     except (KeyboardInterrupt, SystemExit):
@@ -163,9 +163,6 @@ def waiting():
         sys.stdout.flush()
         time.sleep(0.1)
     sys.stdout.write('\r             ')
-
-
-
 
 
 lines = 'Welcome to Coursemos'
