@@ -155,7 +155,17 @@ def waiting():
 
 
 lines = 'Welcome to Coursemos'
-wake_up_neo(lines, 'green')
+
+print('\033[1;32m')
+system('cls')
+for line in lines:
+    print(line, end='')
+
+    sys.stdout.flush()
+    sleep(uniform(0, 0.3))
+
+    if line == '\n':
+        system('cls')
 
 log("Coursemos", color='red', figlet=True)
 accountInfo = askAccountInformation()
