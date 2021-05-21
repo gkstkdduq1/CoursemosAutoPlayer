@@ -17,7 +17,7 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from time import sleep
 import warnings
-from pyfiglet import figlet_format
+from pyfiglet import figlet_format, fonts
 from PyInquirer import Token, prompt, style_from_dict
 
 warnings.filterwarnings(action='ignore')
@@ -63,30 +63,8 @@ def typewriter(lines):
     print('\033[0;0m')
 
 
-def wake_up_neo(lines, color):
-    if color == 'red':
-        print('\033[1;31m')
-
-    if color == 'green':
-        print('\033[1;32m')
-
-    if color == 'yellow':
-        print('\033[1;33m')
-
-    if color == 'blue':
-        print('\033[1;34m')
-
-    if color == 'magenta':
-        print('\033[1;35m')
-
-    if color == 'cyan':
-        print('\033[1;36m')
-
-    if color == 'white':
-        print('\033[1;37m')
-
-    if color == 'black':
-        print('\033[1;30m')
+def ending(lines):
+    print('\033[1;32m')
 
     try:
         system('cls')
@@ -98,18 +76,38 @@ def wake_up_neo(lines, color):
 
             if line == '\n':
                 system('cls')
-        #system('cls')
-        #print('\033[0;0m')
-        answer = ask_pill()
-
-
 
     except (KeyboardInterrupt, SystemExit):
         pass
 
     finally:
 
-        exit() if answer == '\033[1;34mBLUE PILL' else 1
+        print('\033[0;0m')
+        system('cls')
+        sys.exit()
+
+def wake_up_neo(lines):
+    print('\033[1;32m')
+
+    try:
+        system('cls')
+        for line in lines:
+            print(line, end='')
+
+            sys.stdout.flush()
+            sleep(uniform(0, 0.3))
+
+            if line == '\n':
+                system('cls')
+
+        answer = ask_pill()
+
+    except (KeyboardInterrupt, SystemExit):
+        pass
+
+    finally:
+
+        sys.exit() if answer == '\033[1;34mBLUE PILL' else 1
         print('\033[0;0m')
         system('cls')
 
@@ -153,10 +151,8 @@ def get_sec(time_str):
     return int(m) * 60 + int(s)
 
 
-done = False
-
-
 def waiting():
+
     for c in itertools.cycle(['|', '/', '-', '\\']):
         if done:
             break
@@ -165,7 +161,58 @@ def waiting():
         time.sleep(0.1)
     sys.stdout.write('\r             ')
 
+def class_attend(a):
+    link = a['href']
+    class_id = link[link.find('id=') + len('id='):]
+    class_name = a.select('div.course-name > div.course-title > h3')[0].contents[0]
+    br.get(link)
+    try:
+        WebDriverWait(br, 3).until(EC.alert_is_present(),
+                                   'Timed out waiting for PA creation ' +
+                                   'confirmation popup to appear.')
+        alert = br.switch_to.alert
+        alert.accept()
+    except TimeoutException:
+        pass
 
+    sleep(0.1)
+    html = br.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    links = soup.select(
+        'div.course_box.course_box_current > ul > li> div.content > ul > li.activity.vod.modtype_vod > div > div > div:nth-child(2) > div')
+
+    try:
+        week_text = soup.select('div.course_box.course_box_current > ul > li> div.content >h3>span>a')[0]['href']
+        week = week_text[week_text.find('section-') + len('section-'):]
+        br.get(f'https://learn.inha.ac.kr/report/ubcompletion/user_progress_a.php?id={class_id}')
+        html = br.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        table = soup.find_all('table')
+        attend_df = pd.read_html(str(table))[1]
+        attend_df = attend_df[attend_df.iloc[:, 0] == int(week)]
+        attend_list = attend_df['출석'].tolist()
+        done = True
+        sleep(0.1)
+        system('cls')
+
+        print(class_name, 'for this week :\n')
+        links_to_attend = []
+        # print title, duration of vid
+        for link, attend in zip(links, attend_list):
+            color = 'green' if attend == 'O' else 'red'
+            if attend == 'O':
+                color = 'green'
+            else:
+                color = 'red'
+                links_to_attend.append(link)
+            title = link.find('span').contents[0]
+            duration = link.find_all('span')[-1].text.split()[-1]
+            log(f'강의명 : {title}, 시간 :{duration}, 출석여부 : {attend}', color)
+    except:
+        print('출석 에러')
+
+
+done = False
 lines = 'Welcome to Coursemos'
 typewriter(lines)
 
@@ -174,19 +221,19 @@ accountInfo = askAccountInformation()
 USERNAME = accountInfo.get("username")
 PASSWORD = accountInfo.get("password")
 
-# f = open("account.txt", "r")
-# lines = f.readlines()
-#
-# USERNAME = lines[0].replace("\n", '')
-# PASSWORD = lines[1].replace("\n", '')
-#
-# f.close()
+f = open("account.txt", "r")
+lines = f.readlines()
+
+USERNAME = lines[0].replace("\n", '')
+PASSWORD = lines[1].replace("\n", '')
+
+f.close()
 
 
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("--headless")
+#chrome_options.add_argument("--headless")
 chrome_options.add_argument("--mute-audio")
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
@@ -210,7 +257,7 @@ Follow the white rabbit.
 Knock, knock, {username}.
 Remember, all I’m offering is the truth, nothing more."""
 
-t = threading.Thread(target=wake_up_neo(lines, 'green'))
+t = threading.Thread(target=wake_up_neo(lines))
 t.start()
 
 
@@ -226,19 +273,21 @@ t.start()
 # get class id
 for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
 
+
     link = a['href']
     class_id = link[link.find('id=') + len('id='):]
     class_name = a.select('div.course-name > div.course-title > h3')[0].contents[0]
     br.get(link)
-    # try:
-    #     WebDriverWait(br, 3).until(EC.alert_is_present(),
-    #                                'Timed out waiting for PA creation ' +
-    #                                'confirmation popup to appear.')
-    #     alert = br.switch_to.alert
-    #     alert.accept()
-    # except TimeoutException:
-    #     pass
+    try:
+        WebDriverWait(br, 3).until(EC.alert_is_present(),
+                                   'Timed out waiting for PA creation ' +
+                                   'confirmation popup to appear.')
+        alert = br.switch_to.alert
+        alert.accept()
+    except TimeoutException:
+        pass
 
+    sleep(0.1)
     html = br.page_source
     soup = BeautifulSoup(html, 'html.parser')
     links = soup.select(
@@ -274,7 +323,6 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
 
 
         # open vid link and play each
-
         for i in links_to_attend:
 
             title = i.find('span').contents[0]
@@ -352,5 +400,5 @@ I'm going to show them a world.. without you.
 A world without rules or controls, without borders or boundaries. 
 A world where anything is possible. 
 Where we go from there is a choice I leave to you."""
-wake_up_neo(lines, 'green')
+ending(lines)
 br.close()
