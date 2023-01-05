@@ -130,14 +130,14 @@ def askAccountInformation():
         {
             'type': 'input',
             'name': 'username',
-            'message': 'ID'
-            # 'default': '12113952'
+            'message': 'ID',
+            'default': '12113952'
         },
         {
             'type': 'password',
             'name': 'password',
-            'message': 'Password'
-            # 'default': 'Asdasd!@3'
+            'message': 'Password',
+            'default': 'Asdasd!@3'
         }
     ]
 
@@ -217,9 +217,9 @@ lines = 'Welcome to Coursemos'
 typewriter(lines)
 
 log("Coursemos", color='red', figlet=True)
-accountInfo = askAccountInformation()
-USERNAME = accountInfo.get("username")
-PASSWORD = accountInfo.get("password")
+# accountInfo = askAccountInformation()
+# USERNAME = accountInfo.get("username")
+# PASSWORD = accountInfo.get("password")
 
 f = open("account.txt", "r")
 lines = f.readlines()
@@ -230,10 +230,11 @@ PASSWORD = lines[1].replace("\n", '')
 f.close()
 
 
+
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-gpu")
-#chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")
 chrome_options.add_argument("--mute-audio")
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
@@ -242,9 +243,9 @@ br = webdriver.Chrome('./chromedriver', options=chrome_options)  # 드라이버 
 br.get('https://learn.inha.ac.kr/login.php')  # 해당 url로 이동
 
 # 이메일과 비밀번호를 입력
-br.find_element_by_name('username').send_keys(USERNAME)
-br.find_element_by_name('password').send_keys(PASSWORD)
-br.find_element_by_name('loginbutton').click()
+br.find_element(by='name',value='username').send_keys('12113952')
+br.find_element(by='name', value='password').send_keys('Asdasd!@3')
+br.find_element(by='name',value='loginbutton').click()
 
 html = br.page_source
 soup = BeautifulSoup(html, 'html.parser')
@@ -257,8 +258,8 @@ Follow the white rabbit.
 Knock, knock, {username}.
 Remember, all I’m offering is the truth, nothing more."""
 
-t = threading.Thread(target=wake_up_neo(lines))
-t.start()
+# t = threading.Thread(target=wake_up_neo(lines))
+# t.start()
 
 
 # sentence = 'Welcome to Inha University'
@@ -269,6 +270,7 @@ t.start()
 #     sys.stdout.flush()
 #     sleep(0.1)
 #     i += 1
+
 
 # get class id
 for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
@@ -294,36 +296,49 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
         'div.course_box.course_box_current > ul > li> div.content > ul > li.activity.vod.modtype_vod > div > div > div:nth-child(2) > div')
 
     try:
+
         week_text = soup.select('div.course_box.course_box_current > ul > li> div.content >h3>span>a')[0]['href']
         week = week_text[week_text.find('section-') + len('section-'):]
-        br.get(f'https://learn.inha.ac.kr/report/ubcompletion/user_progress_a.php?id={class_id}')
-        html = br.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        table = soup.find_all('table')
-        attend_df = pd.read_html(str(table))[1]
-        attend_df = attend_df[attend_df.iloc[:, 0] == int(week)]
-        attend_list = attend_df['출석'].tolist()
-        done = True
-        sleep(0.1)
-        system('cls')
+        links_to_attend = [0]
 
-        print(class_name, 'for this week :\n')
-        links_to_attend = []
-        # print title, duration of vid
-        for link, attend in zip(links, attend_list):
-            color = 'green' if attend == 'O' else 'red'
-            if attend == 'O':
-                color = 'green'
-            else:
-                color = 'red'
-                links_to_attend.append(link)
-            title = link.find('span').contents[0]
-            duration = link.find_all('span')[-1].text.split()[-1]
-            log(f'강의명 : {title}, 시간 :{duration}, 출석여부 : {attend}', color)
+        while len(links_to_attend) > 0:
+            br.get(f'https://learn.inha.ac.kr/report/ubcompletion/user_progress_a.php?id={class_id}')
+            try:
+                WebDriverWait(br, 3).until(EC.alert_is_present(),
+                                           'Timed out waiting for PA creation ' +
+                                           'confirmation popup to appear.')
+                alert = br.switch_to.alert
+                alert.accept()
+            except TimeoutException:
+                pass
+            html = br.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            table = soup.find_all('table')
+            attend_df = pd.read_html(str(table))[1]
+            attend_df = attend_df[attend_df.iloc[:, 0] == int(week)]
+            attend_list = attend_df['출석'].tolist()
+            done = True
+            sleep(0.1)
+            system('cls')
+
+            print(class_name, 'for this week :\n')
+            links_to_attend = []
+            # print title, duration of vid
+            for link, attend in zip(links, attend_list):
+                color = 'green' if attend == 'O' else 'red'
+                if attend == 'O':
+                    color = 'green'
+                else:
+                    color = 'red'
+                    links_to_attend.append(link)
+                title = link.find('span').contents[0]
+                duration = link.find_all('span')[-1].text.split()[-1]
+                log(f'강의명 : {title}, 시간 :{duration}, 출석여부 : {attend}', color)
 
 
-        # open vid link and play each
-        for i in links_to_attend:
+            # open vid link and play each
+
+            i = links_to_attend[0]
 
             title = i.find('span').contents[0]
             duration = i.find_all('span')[-1].text.split()[-1]
@@ -356,9 +371,9 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
 
             WebDriverWait(br, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#my-video > button')))
 
-            br.find_element_by_css_selector('#my-video > button').click()
+            br.find_element(By.CSS_SELECTOR,'#my-video > button').click()
 
-            WebDriverWait(br, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.vjs-remaining-time-display')))
+            WebDriverWait(br, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#my-video > div.vjs-control-bar > div.vjs-remaining-time.vjs-time-control.vjs-control > span.vjs-remaining-time-display')))
             done = True
             sleep(0.1)
 
@@ -366,7 +381,7 @@ for a in soup.select('div.course_lists > ul')[0].find_all('a', href=True):
             while remaining_time > 0:
                 html = br.page_source
                 soup = BeautifulSoup(html, 'html.parser')
-                remaining_time = soup.select('div.vjs-remaining-time-display')[-1].text
+                remaining_time = soup.select('#my-video > div.vjs-control-bar > div.vjs-remaining-time.vjs-time-control.vjs-control > span.vjs-remaining-time-display')[-1].text
                 remaining_time = remaining_time.replace('-', '')
 
                 print(f"현재 재생중 : {title}, 남은시간 : {colored(remaining_time, 'green')}", end='\r')
@@ -400,5 +415,5 @@ I'm going to show them a world.. without you.
 A world without rules or controls, without borders or boundaries. 
 A world where anything is possible. 
 Where we go from there is a choice I leave to you."""
-ending(lines)
+# ending(lines)
 br.close()
